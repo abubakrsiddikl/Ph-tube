@@ -37,11 +37,28 @@ const loadCatagoryVideos = async(id) => {
    })
   
 };
+// load detailes
+const loadDetails = async(videoId) => {
+  const url = `https://openapi.programming-hero.com/api/phero-tube/video/${videoId}`;
+  const res = await fetch(url);
+  const data = await res.json();
+  displayDetails(data.video)
+};
 
+// loadDetails Display 
+const displayDetails = (video) => {
+  const detaileContainer = document.getElementById('modal-content');
+  detaileContainer.innerHTML = `
+  <img src=${video.thumbnail}/>
+  <p>${video.description}</p>
+  `
+  // way 1
+  document.getElementById('showModal').click();
+};
 // videos
-const loadVideos = async () => {
+const loadVideos = async (searchText = "") => {
   const res = await fetch(
-    "https://openapi.programming-hero.com/api/phero-tube/videos"
+    `https://openapi.programming-hero.com/api/phero-tube/videos?title=${searchText}`
   );
   const data = await res.json();
   displayVideos(data.videos);
@@ -94,8 +111,7 @@ const displayVideos = (videos) => {
               : ""
           }
          </div>
-         <p></p>
-         <p></p>
+         <p><button onclick="loadDetails('${video.video_id}')" class="btn btn-sm btn-error">details</button></p>
          </div>
         </div>
         `;
@@ -118,5 +134,9 @@ const displayCatagories = (catagories) => {
   });
 };
 
+document.getElementById('search-input').addEventListener("keyup",(e)=>{
+  loadVideos(e.target.value);
+  loadVideos()
+})
 loadCatagories();
 loadVideos();
