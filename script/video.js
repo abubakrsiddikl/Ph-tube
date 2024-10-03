@@ -8,6 +8,13 @@ function getTimeString(time) {
   return `${hour} hour ${minute} m ${remaningSecond}sec ago`
 }
 
+const removeActiveClass = () => {
+  const buttons = document.getElementsByClassName('category-btn');
+  for (let btn of buttons) {
+    btn.classList.remove("active")
+  }
+};
+
 // 1. fetch show load catgorese on html
 // create load catagorese
 const loadCatagories = () => {
@@ -19,10 +26,16 @@ const loadCatagories = () => {
 
 // loadCategoryVideos
 const loadCatagoryVideos = async(id) => {
+  removeActiveClass()
   // alert(id)
-  const res = await fetch(`https://openapi.programming-hero.com/api/phero-tube/category/${id}`);
-  const data =  await res.json();
-  displayVideos(data.category)
+   fetch(`https://openapi.programming-hero.com/api/phero-tube/category/${id}`)
+   .then(res => res.json())
+   .then(data => {
+    const activeBtn = document.getElementById(`btn-${id}`);
+    activeBtn.classList.add('active')
+    displayVideos(data.category)
+   })
+  
 };
 
 // videos
@@ -37,7 +50,18 @@ const loadVideos = async () => {
 // display videos
 const displayVideos = (videos) => {
   const videoContainer = document.getElementById("videos");
+  videoContainer.classList.remove('grid')
   videoContainer.innerHTML = "";
+  if (videos.length == 0) {
+    videoContainer.innerHTML = `
+    <div class="min-h-[300px] w-full flex flex-col gap-5 justify-center items-center ">
+    <img src="./assets/Icon.png"/>
+    </div>
+    <h2 class="font-bold text-2xl text-center">No content here</h2>
+    `;
+  }else{
+    videoContainer.classList.add('grid')
+  }
   videos.forEach((video) => {
     // display video
     const card = document.createElement("div");
@@ -86,7 +110,7 @@ const displayCatagories = (catagories) => {
     // create button
     const buttonContainer = document.createElement("div");
     buttonContainer.innerHTML = `
-    <button onclick="loadCatagoryVideos('${item.category_id}')" class="btn">
+    <button id="btn-${item.category_id}" onclick="loadCatagoryVideos(${item.category_id})" class="btn category-btn">
     ${item.category}
     </button>
     `
