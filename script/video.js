@@ -1,3 +1,13 @@
+
+// shared function
+function getTimeString(time) {
+  const hour = parseInt(time/3600);
+  let remaningSecond = time % 3600;
+  const minute = parseInt(remaningSecond / 60);
+  remaningSecond = remaningSecond % 60;
+  return `${hour} hour ${minute} m ${remaningSecond}sec ago`
+}
+
 // 1. fetch show load catgorese on html
 // create load catagorese
 const loadCatagories = () => {
@@ -7,25 +17,14 @@ const loadCatagories = () => {
     .catch((err) => console.log(err));
 };
 
-const cardDemo = {
-  category_id: "1001",
-  video_id: "aaaa",
-  thumbnail: "https://i.ibb.co/L1b6xSq/shape.jpg",
-  title: "Shape of You",
-  authors: [
-    {
-      profile_picture: "https://i.ibb.co/D9wWRM6/olivia.jpg",
-      profile_name: "Olivia Mitchell",
-      verified: "",
-    },
-  ],
-  others: {
-    views: "100K",
-    posted_date: "16278",
-  },
-  description:
-    "Dive into the rhythm of 'Shape of You,' a captivating track that blends pop sensibilities with vibrant beats. Created by Olivia Mitchell, this song has already gained 100K views since its release. With its infectious melody and heartfelt lyrics, 'Shape of You' is perfect for fans looking for an uplifting musical experience. Let the music take over as Olivia's vocal prowess and unique style create a memorable listening journey.",
+// loadCategoryVideos
+const loadCatagoryVideos = async(id) => {
+  // alert(id)
+  const res = await fetch(`https://openapi.programming-hero.com/api/phero-tube/category/${id}`);
+  const data =  await res.json();
+  displayVideos(data.category)
 };
+
 // videos
 const loadVideos = async () => {
   const res = await fetch(
@@ -38,8 +37,8 @@ const loadVideos = async () => {
 // display videos
 const displayVideos = (videos) => {
   const videoContainer = document.getElementById("videos");
+  videoContainer.innerHTML = "";
   videos.forEach((video) => {
-    console.log(video);
     // display video
     const card = document.createElement("div");
     card.classList = "card card-compact  ";
@@ -49,8 +48,8 @@ const displayVideos = (videos) => {
             src=${video.thumbnail}
             alt="Shoes" />
             ${
-              video.others.posted_date?.length===0 ? "":`<span class="absolute right-2 bottom-2 bg-black text-white rounded ">${
-              video.others.posted_date
+              video.others.posted_date?.length===0 ? "":`<span class="text-xs absolute right-2 bottom-2 bg-black text-white rounded ">${
+              getTimeString(video.others.posted_date)
             }</span>`
             }
             
@@ -85,10 +84,13 @@ const displayCatagories = (catagories) => {
   catagories.forEach((item) => {
     const categoreContainer = document.getElementById("catagorey-container");
     // create button
-    const button = document.createElement("button");
-    button.classList = "btn";
-    button.innerText = item.category;
-    categoreContainer.append(button);
+    const buttonContainer = document.createElement("div");
+    buttonContainer.innerHTML = `
+    <button onclick="loadCatagoryVideos('${item.category_id}')" class="btn">
+    ${item.category}
+    </button>
+    `
+    categoreContainer.append(buttonContainer);
   });
 };
 
